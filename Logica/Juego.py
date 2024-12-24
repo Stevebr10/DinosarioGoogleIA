@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 
 #Inicializacion del pygame
 
@@ -47,8 +48,8 @@ BG = pygame.image.load(resource_path("Images/Other/Track.png"))
 class Dinosaur:
     #Posicion del dinosaurio
     X_POS= 80
-    Y_POS= 230
-    Y_POS_DUCK = 270
+    Y_POS= 310
+    Y_POS_DUCK = 350
     JUMP_VEL = 8.5
 
     def __init__(self):
@@ -120,17 +121,58 @@ class Dinosaur:
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
 
+class Cloud:
+    def __init__(self):
+        self.x = SCREEN_WIDTH + random.randint(800,1000)
+        self.y = random.randint(50,100)
+        self.image = CLOUD
+        self.width = self.image.get_width()
+    
+    def update(self):
+        self.x -= game_speed
+        if self.x < -self.width:
+            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
+            self.y = random.randint(50,100)
+    
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, (self.x, self.y))
 
 
 # Función MAIN
 def main():
     try:
-        global game_speed
+        global game_speed, x_pos_bg, y_pos_bg, points
         run = True  # Mientras run sea true el programa seguirá ejecutándose
         clock = pygame.time.Clock()  # Se crea un objeto reloj para controlar la velocidad del juego (FPS)
         # Creación del Main loop
         player = Dinosaur()  # Instancia de la clase Dinosaurio
+        cloud = Cloud()
         game_speed=14
+        x_pos_bg = 0
+        y_pos_bg = 380
+        points = 0
+        font = pygame.font.Font('freesansbold.ttf',20)
+
+        def score():
+            global points, game_speed
+            points += 1
+            if points % 100 == 0:
+                game_speed += 1
+            
+            text = font.render("Puntos: "+ str(points), True, (0,0,0))
+            textRect = text.get_rect()
+            textRect.center = (1000, 40)
+            SCREEN.blit(text, textRect)
+
+        def background():
+            global x_pos_bg, y_pos_bg
+            image_width = BG.get_width()
+            SCREEN.blit(BG,(x_pos_bg, y_pos_bg))
+            SCREEN.blit(BG,(image_width + x_pos_bg, y_pos_bg))
+            if x_pos_bg <= -image_width:
+                SCREEN.blit(BG, (image_width+x_pos_bg, y_pos_bg))
+                x_pos_bg = 0
+            x_pos_bg -= game_speed
 
         while run:
             # Manejo de eventos
@@ -147,6 +189,16 @@ def main():
             # Dibujar y actualizar al dinosaurio
             player.draw(SCREEN)
             player.update(userInput)
+
+            #backgound
+            background()
+
+            #Puntuacion
+            score()
+
+            #Dibujo de la Nube
+            cloud.draw(SCREEN)
+            cloud.update()
 
             # Actualizar la pantalla
             pygame.display.update()
