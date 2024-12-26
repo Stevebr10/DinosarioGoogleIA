@@ -197,6 +197,7 @@ def main():
         points = 0
         font = pygame.font.Font('freesansbold.ttf',20)
         obstacles= []
+        death_count=0
 
         #Puntuacion 
         def score():
@@ -250,7 +251,10 @@ def main():
                 obstacle.draw(SCREEN)
                 obstacle.update()
                 if player.dino_rect.colliderect(obstacle.rect):
-                    pygame.draw.rect(SCREEN, (255,0,0), player.dino_rect, 2)
+                    #pygame.draw.rect(SCREEN, (255,0,0), player.dino_rect, 2)
+                    pygame.time.delay(2000)
+                    death_count +=1
+                    menu(death_count)
 
             #backgound
             background()
@@ -274,6 +278,37 @@ def main():
         pygame.quit()
 
 
-if __name__ == "__main__":
-    main()
+def menu(death_count):
+    global points
+    run = True
+    while run:
+        SCREEN.fill((255,255,255))
+        font = pygame.font.Font('freesansbold.ttf',30)
+
+        if death_count==0:
+            text = font.render("Presiona cualquier tecla para empezar", True, (0,0,0))
+        elif death_count >0:
+            text= font.render("Presiona cualquier tecla para reiniciar", True, (0,0,0))
+            score= font.render("Tú Puntuación "+str(points),True,(0,0,0))
+            scoreRect = score.get_rect()
+            scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+            SCREEN.blit(score, scoreRect)
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(text, textRect)
+        SCREEN.blit(RUNNING[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 -140))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN:
+                main()
+                #if __name__ == "__main__":
+                 #   main()
+
+
+menu(death_count=0)
+
+#if __name__ == "__main__":
+ #   main()
 
