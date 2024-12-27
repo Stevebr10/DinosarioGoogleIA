@@ -157,30 +157,29 @@ class SmallCactus(Obstacle):
         self.type = random.randint(0,2)
         super().__init__(image, self.type)
         self.rect.y=325
+        self.rect.inflate_ip(-5, -5)  # Ajuste del rectángulo
 
 class LargeCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0,2)
         super().__init__(image, self.type)
         self.rect.y=300
+        self.rect.inflate_ip(-10, -10)  # Ajuste del rectángulo
 
 class Bird(Obstacle):
     def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
-        self.rect.y=250
+        self.rect.y=265
+        #self.rect.y = random.choice([250, 300])
         self.index = 0
     
-    def draw(self, SCRREN):
+    def draw(self, SCREEN):
         if self.index >= 9:
             self.index=0
         SCREEN.blit(self.image[self.index //5], self.rect)
         self.index +=1
-
-
-
-        
-
+   
 
 # Función MAIN
 def main():
@@ -204,12 +203,13 @@ def main():
             global points, game_speed
             points += 1
             if points % 100 == 0:
-                game_speed += 1
+                game_speed += 2
             
             text = font.render("Puntos: "+ str(points), True, (0,0,0))
             textRect = text.get_rect()
             textRect.center = (1000, 40)
             SCREEN.blit(text, textRect)
+
 
         #Backgound
         def background():
@@ -250,7 +250,7 @@ def main():
             for obstacle in obstacles:
                 obstacle.draw(SCREEN)
                 obstacle.update()
-                if player.dino_rect.colliderect(obstacle.rect):
+                if player.dino_rect.colliderect(obstacle.rect.inflate(-25,-25)):  #obstacle.rect
                     #pygame.draw.rect(SCREEN, (255,0,0), player.dino_rect, 2)
                     pygame.time.delay(2000)
                     death_count +=1
@@ -261,6 +261,17 @@ def main():
 
             #Puntuacion
             score()
+
+             # Verificar si el jugador gana
+            if points >= 1000:
+                # Mostrar mensaje de victoria y salir del juego
+                text = font.render("¡Has ganado! Puntos: 2500", True, (0, 0, 0))
+                textRect = text.get_rect()
+                textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                SCREEN.blit(text, textRect)
+                pygame.display.update()
+                pygame.time.delay(2000)
+                run = False  # Detener el juego
 
             #Dibujo de la Nube
             cloud.draw(SCREEN)
@@ -301,6 +312,8 @@ def menu(death_count):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.quit()
+                exit()
             if event.type == pygame.KEYDOWN:
                 main()
                 #if __name__ == "__main__":
